@@ -1,0 +1,60 @@
+<?php
+// $Id$
+/**
+ * @file
+ *
+ * @author Clever Age
+ * @author Emmanuelle Gouleau
+ * @author Tristan Marly
+ *
+ */
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function publication_date_schema() {
+  $schema['publication_date'] = array(
+    'description' => 'Keep the publication timestamp for each node.',
+    'fields' => array(
+      'nid' => array(
+        'description' => 'The {node}.nid of the node.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'published_at' => array(
+        'description' => 'The timestamp of the node publication.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+        'published_at' => array('published_at'),
+    ),
+    'primary key' => array('nid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function publication_date_install() {
+  // create tables
+  drupal_install_schema('publication_date');
+
+  // The hooks of this module must be called after some other modules (scheduler, ...)
+  update_sql("UPDATE {system} SET weight = 99 WHERE name = 'publication_date'");
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function publication_date_uninstall() {
+  // drop tables
+  drupal_uninstall_schema('publication_date');
+}
+
