@@ -46,6 +46,9 @@ function publication_date_install() {
   // create tables
   drupal_install_schema('publication_date');
 
+  // update existing nodes
+  _publication_date_update_existing();
+
   // The hooks of this module must be called after some other modules (scheduler, ...)
   update_sql("UPDATE {system} SET weight = 99 WHERE name = 'publication_date'");
 }
@@ -58,3 +61,10 @@ function publication_date_uninstall() {
   drupal_uninstall_schema('publication_date');
 }
 
+/**
+ * Function to update the existing nodes on install so sorting will work properly.
+ */
+function _publication_date_update_existing() {
+  $sql = "INSERT INTO {publication_date} SELECT nid,created FROM node where status = 1";
+  db_query($sql);
+}
