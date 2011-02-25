@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Add a field containing the publication date.
