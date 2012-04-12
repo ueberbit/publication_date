@@ -1,0 +1,43 @@
+  <?php
+
+/**
+ * @file
+ * Rules tests.
+ */
+
+class PublicationDateTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+  static function getInfo() {
+    return array(
+      'name' => 'Published date setting test',
+      'description' => 'Test to see the published_at values are working',
+      'group' => 'Publication Date',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'create page content',
+      ));
+    $this->drupalLogin($this->privileged_user);
+  }
+
+
+  /**
+   * Test automatic saving of variables.
+   */
+  function testActionSaving() {
+
+    // Create node to edit.    
+    $edit = array();
+    $edit['title'] = $this->randomName(8);
+    $edit["body[und][0][value]"] = $this->randomName(16);
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+    $this->assertText(t('@title has been created.', array('@title' => $edit['title'])));
+
+    $node = node_load(1);
+    $this->assertEqual($node->status, 1, 'Initially published');
+  }
+
+}
