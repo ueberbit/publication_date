@@ -1,4 +1,5 @@
 <?php
+// $Id: $
 /**
  * @file
  *
@@ -6,11 +7,12 @@
  * @author Emmanuelle Gouleau
  * @author Tristan Marly
  *
+ * Initial D7 Port: Joost van der Locht
  */
 
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  */
 function publication_date_schema() {
   $schema['publication_date'] = array(
@@ -39,31 +41,29 @@ function publication_date_schema() {
 }
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  */
 function publication_date_install() {
-  // create tables
-  drupal_install_schema('publication_date');
 
   // update existing nodes
   _publication_date_update_existing();
 
   // The hooks of this module must be called after some other modules (scheduler, ...)
-  update_sql("UPDATE {system} SET weight = 99 WHERE name = 'publication_date'");
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function publication_date_uninstall() {
-  // drop tables
-  drupal_uninstall_schema('publication_date');
+  db_update('system')
+    ->fields(array('weight' => 99))
+    ->condition('name', 'publication_date')
+    ->execute();
 }
 
 /**
  * Function to update the existing nodes on install so sorting will work properly.
  */
 function _publication_date_update_existing() {
-  $sql = "INSERT INTO {publication_date} SELECT nid,created FROM node where status = 1";
-  db_query($sql);
+  $query = db_select('node');
+  $query->addField('node', 'nid');
+  $query->addField('node', 'created', 'published_at');
+  $nids = $query->condition('status', 1);
+  db_insert('publication_date')
+    ->from($nids)
+    ->execute();
 }

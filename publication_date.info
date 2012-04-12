@@ -1,7 +1,9 @@
+; $Id: $
 name = Publication Date
 description = "Add a field containing the publication date."
-core = 6.x
-: package = 
-; dependencies[] =
-; php = 
+core = 7.x
 
+files[] = publication_date.install
+files[] = publication_date.module
+files[] = publication_date.tokens.inc
+files[] = includes/publication_date.views.inc

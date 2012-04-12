@@ -1,4 +1,5 @@
 <?php
+// $Id: publication_date.module,v 1.1 2009/07/20 19:49:00 cleverage Exp $
 /**
  * @file
  * Add a field containing the publication date.
@@ -6,36 +7,76 @@
  * @author Clever Age
  * @author Emmanuelle Gouleau
  * @author Tristan Marly
+ *
+ * Initial D7 Port: Joost van der Locht
  */
 
 
 /**
- * Implementation of hook_nodeapi().
- * After each modification / insert / delete, update the publication date
+ * Implements hook_node_load().
  */
-function publication_date_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
-  switch ($op) {
-    case 'load':
+function publication_date_node_load($nodes, $types) {
+  foreach($nodes as $node) {
       $node->published_at = _publication_date_get_date($node->nid);
 
       // we have to manage the 'old nodes', i.e nodes that have been published BEFORE the activation
       // of this module.
       if (!$node->published_at) {
-        $row = db_fetch_array(db_query("SELECT created, status FROM {node} WHERE nid = %d", $node->nid));
+      $row = db_select('node', 'n')
+        ->fields('n', array('created', 'status'))
+        ->condition('nid', $node->nid)
+        ->execute()
+        ->fetchAssoc();
         if ($row && $row['status'] == 1) {
           $node->published_at = $row['created'];
         }
       }
-      break;
-    case 'insert':
-    case 'update':
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function publication_date_node_insert($node) {
+  // save publication date
+  _publication_date_set_date($node);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function publication_date_node_update($node) {
+  // save publication date
+  _publication_date_set_date($node);
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function publication_date_node_delete($node) {
+  $date = _publication_date_get_date($node->nid);
+  if ($date) {
+    db_delete('publication_date')
+      ->condition('nid', $node->nid)
+      ->execute();
+  }
+}
+
+
+
+function _publication_date_set_date($node) {
       // save publication date
       if ($node->status == 1) {
         // already in database ?
         $date = _publication_date_get_date($node->nid);
         if (!$date) {
           // no, we insert it
-          db_query("INSERT INTO {publication_date} (nid, published_at) VALUES (%d, %d)", $node->nid, time());
+      $id = db_insert('publication_date')
+        ->fields(array(
+          'nid' => $node->nid,
+          'published_at' => REQUEST_TIME,
+        ))
+        ->execute();
         }
       }
       else {
@@ -43,16 +84,10 @@ function publication_date_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
         $date = _publication_date_get_date($node->nid);
         if ($date) {
           // yes, so we remove it
-          db_query("DELETE FROM {publication_date} WHERE nid = %d", $node->nid);
-        }
+      db_delete('publication_date')
+        ->condition('nid', $node->nid)
+        ->execute();
       }
-      break;
-    case 'delete' :
-      $date = _publication_date_get_date($node->nid);
-      if ($date) {
-        db_query("DELETE FROM {publication_date} WHERE nid = %d", $node->nid);
-      }
-      break;
   }
 }
 
@@ -60,14 +95,16 @@ function publication_date_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
  * @return the publication date for the given node, or false if the node is not published
  */
 function _publication_date_get_date($nid) {
-  $date = db_result(db_query("SELECT published_at FROM {publication_date} WHERE nid = %d", $nid));
+  $date = db_query("SELECT published_at FROM {publication_date} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
   return $date;
 }
 
 /**
- * Implementation of "contrib module views" hook_views_tables()
+ * Implements hook_views_api().
  */
 function publication_date_views_api() {
-  $info['api'] = 2;
-  return $info;
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'publication_date') . '/includes',
+  );
 }
