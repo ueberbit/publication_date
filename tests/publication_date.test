@@ -16,9 +16,10 @@ class PublicationDateTestCase extends DrupalWebTestCase {
   }
 
   function setUp() {
-    parent::setUp();
+    parent::setUp('publication_date');
     $this->privileged_user = $this->drupalCreateUser(array(
       'create page content',
+      'administer nodes',
       ));
     $this->drupalLogin($this->privileged_user);
   }
@@ -30,14 +31,26 @@ class PublicationDateTestCase extends DrupalWebTestCase {
   function testActionSaving() {
 
     // Create node to edit.    
-    $edit = array();
-    $edit['title'] = $this->randomName(8);
-    $edit["body[und][0][value]"] = $this->randomName(16);
-    $this->drupalPost('node/add/page', $edit, t('Save'));
-    $this->assertText(t('@title has been created.', array('@title' => $edit['title'])));
+    $node = $this->drupalCreateNode(array('status' => 0));
+    $unpublished_node = node_load($node->nid);
+    $this->assertTrue(empty($unpublished_node->published_at),'Published date is initially empty');
 
-    $node = node_load(1);
-    $this->assertEqual($node->status, 1, 'Initially published');
+    $unpublished_node->status =1;
+    node_save($unpublished_node);
+    $published_node = node_load($node->nid);
+    $this->assertTrue(is_numeric($published_node->published_at),'Published date is integer/numberic once published');
+
+
+    $published_node->status =0;
+    node_save($published_node);
+    $unpublished_node = node_load($node->nid);
+    $this->assertTrue(empty($node->published_at),'Published date is empty once unpublished');
+
   }
 
 }
+
+
+
+
+
