@@ -74,7 +74,7 @@ function _publication_date_set_date($node) {
       $id = db_insert('publication_date')
         ->fields(array(
           'nid' => $node->nid,
-          'published_at' => REQUEST_TIME,
+          'published_at' => empty($node->published_at) ? REQUEST_TIME : $node->published_at,
         ))
         ->execute();
         }

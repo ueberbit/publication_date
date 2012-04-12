@@ -39,6 +39,7 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     node_save($unpublished_node);
     $published_node = node_load($node->nid);
     $this->assertTrue(is_numeric($published_node->published_at),'Published date is integer/numberic once published');
+    $this->assertTrue($published_node->published_at == REQUEST_TIME,'Published date is REQUEST_TIME');
 
 
     $published_node->status =0;
@@ -46,6 +47,24 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $unpublished_node = node_load($node->nid);
     $this->assertTrue(empty($node->published_at),'Published date is empty once unpublished');
 
+  }
+  
+  // test that it cares about setting the published_at
+  // this is useful for people using 'migrate' etc
+  function testActionSavingSetDate() {
+    $node = $this->drupalCreateNode(array('status' => 0));
+    $unpublished_node = node_load($node->nid);
+    $this->assertTrue(empty($unpublished_node->published_at),'Published date is initially empty');
+
+    // now published this with our custom time
+    $unpublished_node->status =1;
+    $static_time = 12345678;    
+    $unpublished_node->published_at = $static_time;
+    node_save($unpublished_node);
+    $published_node = node_load($node->nid);
+    // and see if it comes back with it correctly
+    $this->assertTrue(is_numeric($published_node->published_at),'Published date is integer/numberic once published');
+    $this->assertTrue($published_node->published_at == $static_time,'Published date is set to what we expected');
   }
 
 }
