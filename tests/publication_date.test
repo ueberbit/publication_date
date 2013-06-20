@@ -19,6 +19,7 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     parent::setUp('publication_date');
     $this->privileged_user = $this->drupalCreateUser(array(
       'create page content',
+      'edit own page content',
       'administer nodes',
       ));
     $this->drupalLogin($this->privileged_user);
@@ -41,14 +42,67 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $this->assertTrue(is_numeric($published_node->published_at),'Published date is integer/numberic once published');
     $this->assertTrue($published_node->published_at == REQUEST_TIME,'Published date is REQUEST_TIME');
 
-
     $published_node->status =0;
     node_save($published_node);
     $unpublished_node = node_load($node->nid);
-    $this->assertTrue(empty($node->published_at),'Published date is empty once unpublished');
+    $this->assertTrue(empty($unpublished_node->published_at),'Published date is empty once unpublished');
+
+    // now try it by purely pushing the forms around
 
   }
-  
+
+  /**
+   * Test automatic saving of variables via forms
+   */
+  function testActionSavingOnForms() {
+    $langcode = LANGUAGE_NONE;
+
+
+    $edit = array();
+    $edit["title"] = 'publication test node ' . $this->randomName(10);
+    $edit["body[$langcode][0][value]"] = 'publication node test body ' . $this->randomName(32) . ' ' . $this->randomName(32);
+    $edit['status'] = 1;
+
+    // hard to test created time == REQUEST_TIME because simpletest launches a new HTTP session, so just check it's set
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+    $node = $this->drupalGetNodeByTitle($edit['title']);
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $value = $this->_getPubdateFieldValue();
+
+    // make sure it was created with Published At set
+    $this->assertNotNull($value, t('Publication date set initially'));
+
+    // set Published/Status to false and check the field is empty
+    $edit['status'] = FALSE;
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $this->assertFieldByName('pubdate', '',t('Publication date should be unset'));
+
+    // set it to published and make sure the published date has come forwards to the new date
+    $edit['status'] = TRUE;
+    sleep(2);
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $new_value = $this->_getPubdateFieldValue();
+    $this->assertTrue(strlen($new_value), t('A published-at time was set'));
+    $this->assertTrue($new_value != $value, t('The new published-at time is different to the original one'));
+
+    // set a custom time and make sure that is stored correctly
+    $ctime = REQUEST_TIME-180;
+    $edit['pubdate'] = format_date($ctime, 'custom', 'Y-m-d H:i:s O');
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $new_value = $this->_getPubdateFieldValue();
+    $this->assertTrue($new_value == format_date($ctime, 'custom', 'Y-m-d H:i:s O'), t('Custom time/date was set'));
+
+    // set the field to empty and submit, should have something set
+    $edit['pubdate'] = format_date($ctime, 'custom', 'Y-m-d H:i:s O');
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $new_value = $this->_getPubdateFieldValue();
+    $this->assertNotNull($new_value, t('Published time was set automatically when there was no value entered'));
+  }
+
   // test that it cares about setting the published_at
   // this is useful for people using 'migrate' etc
   function testActionSavingSetDate() {
@@ -67,6 +121,21 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $this->assertTrue($published_node->published_at == $static_time,'Published date is set to what we expected');
   }
 
+  /**
+   * Returns the value of our published-at field
+   * @return string
+   */
+  private function _getPubdateFieldValue() {
+    $value='';
+
+    if ( $this->assertField('pubdate', t('Published At field exists')) ) {
+      $field = reset($this->xpath('//input[@id="edit-pubdate"]'));
+      $value = (string)$field['value'];
+      return $value;
+    }
+
+    return $value;
+  }
 }
 
 

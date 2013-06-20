@@ -16,21 +16,21 @@
  * Implements hook_node_load().
  */
 function publication_date_node_load($nodes, $types) {
-  foreach($nodes as $node) {
-      $node->published_at = _publication_date_get_date($node->nid);
+  foreach ($nodes as $node) {
+    $node->published_at = _publication_date_get_date($node->nid);
 
-      // we have to manage the 'old nodes', i.e nodes that have been published BEFORE the activation
-      // of this module.
-      if (!$node->published_at) {
+    // we have to manage the 'old nodes', i.e nodes that have been published BEFORE the activation
+    // of this module.
+    if (!$node->published_at) {
       $row = db_select('node', 'n')
         ->fields('n', array('created', 'status'))
         ->condition('nid', $node->nid)
         ->execute()
         ->fetchAssoc();
-        if ($row && $row['status'] == 1) {
-          $node->published_at = $row['created'];
-        }
+      if ($row && $row['status'] == 1) {
+        $node->published_at = $row['created'];
       }
+    }
   }
 }
 
@@ -54,41 +54,27 @@ function publication_date_node_update($node) {
  * Implements hook_node_delete().
  */
 function publication_date_node_delete($node) {
-  $date = _publication_date_get_date($node->nid);
-  if ($date) {
-    db_delete('publication_date')
-      ->condition('nid', $node->nid)
-      ->execute();
-  }
+
+  // Call a db_delete anyway
+  db_delete('publication_date')
+    ->condition('nid', $node->nid)
+    ->execute();
+
 }
 
-
-
+/**
+ * Worker function called by hook_node_update/delete/etc
+ * @param $node object
+ */
 function _publication_date_set_date($node) {
-      // save publication date
-      if ($node->status == 1) {
-        // already in database ?
-        $date = _publication_date_get_date($node->nid);
-        if (!$date) {
-          // no, we insert it
-      $id = db_insert('publication_date')
-        ->fields(array(
-          'nid' => $node->nid,
-          'published_at' => empty($node->published_at) ? REQUEST_TIME : $node->published_at,
-        ))
-        ->execute();
-        }
-      }
-      else {
-        // already in base ?
-        $date = _publication_date_get_date($node->nid);
-        if ($date) {
-          // yes, so we remove it
-      db_delete('publication_date')
-        ->condition('nid', $node->nid)
-        ->execute();
-      }
-  }
+
+  // If the node->status is PUBLISHED, then used published_at,
+  // If not published, then set the row to zero .
+  $date = ( $node->status == 1 && !empty($node->published_at)) ? $node->published_at : 0;
+  db_merge('publication_date')
+    ->key(array('nid' => $node->nid))
+    ->fields(array('published_at' => $date))
+    ->execute();
 }
 
 /**
@@ -108,3 +94,52 @@ function publication_date_views_api() {
     'path' => drupal_get_path('module', 'publication_date') . '/includes',
   );
 }
+
+/**
+ * Implementation of hook_form_BASE_ID_alter().
+ * Display the publication date on the node edit form
+ * @note: This wont work where you have displaysuite/rel enabled
+ */
+function publication_date_form_node_form_alter(&$form, &$form_state, $form_id) {
+  $node = $form["#node"];
+  $form['author']['pubdate'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Published on'),
+    '#maxlength' => 25,
+    '#description' => t('Format: %time. Leave blank to use the time of form submission.', array('%time' => format_date(REQUEST_TIME, 'custom', 'Y-m-d H:i:s O'))),
+  );
+  if ($form['nid'] !== NULL && isset($node->published_at) && $node->published_at) {
+    $form['author']['pubdate']['#default_value'] = format_date($node->published_at, 'custom', 'Y-m-d H:i:s O');
+  }
+  $form['#validate'][] = 'publication_date_pubdate_validate';
+  $form['#submit'][] = 'publication_date_pubdate_submit';
+}
+
+/**
+ * Validate the published date input
+ */
+function publication_date_pubdate_validate($form, &$form_state) {
+  // Validate the "authored on" field. As of PHP 5.1.0, strtotime returns FALSE instead of -1 upon failure.
+  if (!empty($form_state['values']['pubdate'])) {
+    if (strtotime($form_state['values']['pubdate']) <= 0) {
+      form_set_error('pubdate', t('You have to specify a valid date for the published on field.'));
+    }
+  }
+}
+
+/**
+ * Update the published date to Epoch integer for other hook implementations to deal with
+ */
+function publication_date_pubdate_submit($form, &$form_state) {
+
+  // If it's a new node then let the normal function handle it, but use the REQUEST_TIME
+  if(empty($form_state['node']->nid)) {
+    $form_state['node']->published_at = REQUEST_TIME;
+  } else {
+    // Use the publication date field if it's set (custom), or REQUEST_TIME if it is not
+    $form_state['node']->published_at = !empty($form_state['values']['pubdate']) ? strtotime(($form_state['values']['pubdate'])) : REQUEST_TIME;
+  }
+
+
+}
+
