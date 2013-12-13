@@ -39,7 +39,7 @@ function publication_date_node_load($nodes, $types) {
  */
 function publication_date_node_insert($node) {
   // save publication date
-  _publication_date_set_date($node);
+  _publication_date_set_date($node, 'insert');
 }
 
 /**
@@ -47,7 +47,7 @@ function publication_date_node_insert($node) {
  */
 function publication_date_node_update($node) {
   // save publication date
-  _publication_date_set_date($node);
+  _publication_date_set_date($node, 'update');
 }
 
 /**
@@ -63,17 +63,36 @@ function publication_date_node_delete($node) {
 }
 
 /**
- * Worker function called by hook_node_update/delete/etc
- * @param $node object
+ * Worker function to save the published date to the database.
+ *
+ * @param object $node
+ *   The node object.
+ * @param string $op
+ *   The node opperation being performed:
+ *   - 'insert': a new node was created
+ *   - 'update': an existing node was updated
+ *
+ * @see hook_node_insert()
+ * @see hook_node_update()
  */
-function _publication_date_set_date($node) {
+function _publication_date_set_date($node, $op = '') {
+  // Set a default publication date value.
+  $published_at = empty($node->published_at) ? 0 : $node->published_at;
 
-  // If the node->status is PUBLISHED, then used published_at,
-  // If not published, then set the row to zero .
-  $date = ( $node->status == 1 && !empty($node->published_at)) ? $node->published_at : 0;
+  // If no publication date has been set and the node is published then use
+  // REQUEST_TIME. Otherwise, use the default publication date.
+  $published_at = ($published_at == 0 && $node->status == 1) ? REQUEST_TIME : $published_at;
+
+  // Allow other modules to alter the publication date before it is saved.
+  drupal_alter('publication_date', $published_at, $node, $op);
+
+  // Update the node object.
+  $node->published_at = $published_at;
+
+  // Save the publication date to the database.
   db_merge('publication_date')
     ->key(array('nid' => $node->nid))
-    ->fields(array('published_at' => $date))
+    ->fields(array('published_at' => $published_at))
     ->execute();
 }
 
@@ -131,15 +150,7 @@ function publication_date_pubdate_validate($form, &$form_state) {
  * Update the published date to Epoch integer for other hook implementations to deal with
  */
 function publication_date_pubdate_submit($form, &$form_state) {
-
-  // If it's a new node then let the normal function handle it, but use the REQUEST_TIME
-  if(empty($form_state['node']->nid)) {
-    $form_state['node']->published_at = REQUEST_TIME;
-  } else {
-    // Use the publication date field if it's set (custom), or REQUEST_TIME if it is not
-    $form_state['node']->published_at = !empty($form_state['values']['pubdate']) ? strtotime(($form_state['values']['pubdate'])) : REQUEST_TIME;
-  }
-
-
+  // Set $node->published_at to the publication date field value, if it was set,
+  // or zero if it was not.
+  $form_state['node']->published_at = empty($form_state['values']['pubdate']) ? 0 : strtotime(($form_state['values']['pubdate']));
 }
-

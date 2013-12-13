@@ -1,8 +1,8 @@
-  <?php
+<?php
 
 /**
  * @file
- * Rules tests.
+ * Publication date tests.
  */
 
 class PublicationDateTestCase extends DrupalWebTestCase {
@@ -31,21 +31,50 @@ class PublicationDateTestCase extends DrupalWebTestCase {
    */
   function testActionSaving() {
 
-    // Create node to edit.    
+    // Create node to edit.
     $node = $this->drupalCreateNode(array('status' => 0));
     $unpublished_node = node_load($node->nid);
-    $this->assertTrue(empty($unpublished_node->published_at),'Published date is initially empty');
+    $this->assertTrue(empty($unpublished_node->published_at), 'Published date is initially empty');
 
+    // Publish the node.
     $unpublished_node->status =1;
     node_save($unpublished_node);
     $published_node = node_load($node->nid);
-    $this->assertTrue(is_numeric($published_node->published_at),'Published date is integer/numberic once published');
-    $this->assertTrue($published_node->published_at == REQUEST_TIME,'Published date is REQUEST_TIME');
+    $this->assertTrue(is_numeric($published_node->published_at), 'Published date is integer/numberic once published');
+    $this->assertTrue($published_node->published_at == REQUEST_TIME, 'Published date is REQUEST_TIME');
 
-    $published_node->status =0;
+    // Remember time.
+    $time = $published_node->published_at;
+
+    // Unpublish the node and check that the field value is maintained.
+    $published_node->status = 0;
     node_save($published_node);
     $unpublished_node = node_load($node->nid);
-    $this->assertTrue(empty($unpublished_node->published_at),'Published date is empty once unpublished');
+    $this->assertTrue($unpublished_node->published_at == $time, 'Published date is maintained when unpublished');
+
+    // Set the field to zero and and make sure the published date is empty.
+    $unpublished_node->published_at = 0;
+    node_save($unpublished_node);
+    $unpublished_node = node_load($node->nid);
+    $this->assertTrue(empty($unpublished_node->published_at), 'Published date is empty when reset');
+
+    // Set a custom time and make sure that it is saved.
+    $time = $unpublished_node->published_at = 122630400;
+    node_save($unpublished_node);
+    $unpublished_node = node_load($node->nid);
+    $this->assertTrue($unpublished_node->published_at == $time, 'Custom published date is saved');
+
+    // Republish the node and check that the field value is maintained.
+    $unpublished_node->status = 1;
+    node_save($unpublished_node);
+    $published_node = node_load($node->nid);
+    $this->assertTrue($published_node->published_at == $time, 'Custom published date is maintained when republished');
+
+    // Set the field to zero and and make sure the published date is reset.
+    $published_node->published_at = 0;
+    node_save($published_node);
+    $published_node = node_load($node->nid);
+    $this->assertTrue($published_node->published_at > $time, 'Published date is reset');
 
     // now try it by purely pushing the forms around
 
@@ -72,35 +101,45 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     // make sure it was created with Published At set
     $this->assertNotNull($value, t('Publication date set initially'));
 
-    // set Published/Status to false and check the field is empty
-    $edit['status'] = FALSE;
+    // Unpublish the node and check that the field value is maintained.
+    $edit['status'] = 0;
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->drupalGet('node/' . $node->nid . '/edit');
-    $this->assertFieldByName('pubdate', '',t('Publication date should be unset'));
+    $this->assertFieldByName('pubdate', $value, t('Pubdate is maintained when unpublished'));
 
-    // set it to published and make sure the published date has come forwards to the new date
-    $edit['status'] = TRUE;
-    sleep(2);
+    // Republish the node and check that the field value is maintained.
+    $edit['status'] = 1;
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->drupalGet('node/' . $node->nid . '/edit');
-    $new_value = $this->_getPubdateFieldValue();
-    $this->assertTrue(strlen($new_value), t('A published-at time was set'));
-    $this->assertTrue($new_value != $value, t('The new published-at time is different to the original one'));
+    $this->assertFieldByName('pubdate', $value, t('Pubdate is maintained when republished'));
 
-    // set a custom time and make sure that is stored correctly
+    // Set a custom time and make sure that it is stored correctly.
     $ctime = REQUEST_TIME-180;
     $edit['pubdate'] = format_date($ctime, 'custom', 'Y-m-d H:i:s O');
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->drupalGet('node/' . $node->nid . '/edit');
-    $new_value = $this->_getPubdateFieldValue();
-    $this->assertTrue($new_value == format_date($ctime, 'custom', 'Y-m-d H:i:s O'), t('Custom time/date was set'));
+    $custom_value = $this->_getPubdateFieldValue();
+    $this->assertTrue($custom_value == format_date($ctime, 'custom', 'Y-m-d H:i:s O'), t('Custom time/date was set'));
 
-    // set the field to empty and submit, should have something set
-    $edit['pubdate'] = format_date($ctime, 'custom', 'Y-m-d H:i:s O');
+    // Set the field to empty and and make sure the published date is reset.
+    $edit['pubdate'] = '';
+    sleep(2);
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->drupalGet('node/' . $node->nid . '/edit');
     $new_value = $this->_getPubdateFieldValue();
     $this->assertNotNull($new_value, t('Published time was set automatically when there was no value entered'));
+    $this->assertNotNull($new_value != $custom_value, t('The new published-at time is different from the custom time'));
+    $this->assertTrue($new_value > $value, t('The new published-at time is greater than the original one'));
+
+    // Unpublish the node.
+    $edit['status'] = 0;
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+
+    // Set the field to empty and and make sure that it stays empty.
+    $edit['pubdate'] = '';
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $this->assertFieldByName('pubdate', '', t('Publication date field is empty'));
   }
 
   // test that it cares about setting the published_at
@@ -112,7 +151,7 @@ class PublicationDateTestCase extends DrupalWebTestCase {
 
     // now published this with our custom time
     $unpublished_node->status =1;
-    $static_time = 12345678;    
+    $static_time = 12345678;
     $unpublished_node->published_at = $static_time;
     node_save($unpublished_node);
     $published_node = node_load($node->nid);
@@ -137,8 +176,3 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     return $value;
   }
 }
-
-
-
-
-
