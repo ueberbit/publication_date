@@ -5,13 +5,11 @@
  * Builds placeholder replacement tokens for node-related data.
  */
 
-
-
 /**
  * Implements hook_token_info().
  */
 function publication_date_token_info_alter(&$data) {
- $data['tokens']['node']['published'] = array(
+  $data['tokens']['node']['published'] = array(
     'name' => t("Date published"),
     'description' => t("The date the node was published."),
     'type' => 'date',

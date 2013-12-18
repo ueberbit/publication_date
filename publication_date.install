@@ -10,7 +10,6 @@
  * Initial D7 Port: Joost van der Locht
  */
 
-
 /**
  * Implements hook_schema().
  */

@@ -25,7 +25,6 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->privileged_user);
   }
 
-
   /**
    * Test automatic saving of variables.
    */
@@ -85,7 +84,6 @@ class PublicationDateTestCase extends DrupalWebTestCase {
    */
   function testActionSavingOnForms() {
     $langcode = LANGUAGE_NONE;
-
 
     $edit = array();
     $edit["title"] = 'publication test node ' . $this->randomName(10);
