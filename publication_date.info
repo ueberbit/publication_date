@@ -1,4 +1,3 @@
-; $Id: $
 name = Publication Date
 description = "Add a field containing the publication date."
 core = 7.x

@@ -1,5 +1,5 @@
 <?php
-// $Id: publication_date.module,v 1.1 2009/07/20 19:49:00 cleverage Exp $
+
 /**
  * @file
  * Add a field containing the publication date.
