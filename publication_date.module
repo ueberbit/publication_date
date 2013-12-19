@@ -2,13 +2,7 @@
 
 /**
  * @file
- * Add a field containing the publication date.
- *
- * @author Clever Age
- * @author Emmanuelle Gouleau
- * @author Tristan Marly
- *
- * Initial D7 Port: Joost van der Locht
+ * Add a field to nodes containing the publication date.
  */
 
 /**

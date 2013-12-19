@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Publication date tests.
+ * Publication Date module tests.
  */
 
 class PublicationDateTestCase extends DrupalWebTestCase {

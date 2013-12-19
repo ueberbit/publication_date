@@ -2,12 +2,7 @@
 
 /**
  * @file
- *
- * @author Clever Age
- * @author Emmanuelle Gouleau
- * @author Tristan Marly
- *
- * Initial D7 Port: Joost van der Locht
+ * Installation functions for the Publication Date module.
  */
 
 /**
