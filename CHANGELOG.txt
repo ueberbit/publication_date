@@ -1,6 +1,8 @@
 
 Publication Date 7.x-1.x, xxxx-xx-xx
 ------------------------------------------
+#2157043 by balsama: Move "Published on" field from Author vertical tab to
+  Options vertical tab.
 #2094395 by jstoller: Implement hook_publication_date_alter(), so other modules
   can alter the publication date.
 #2094375 by jstoller: Remember original publication date when node is

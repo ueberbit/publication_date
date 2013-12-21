@@ -112,14 +112,15 @@ function publication_date_views_api() {
  */
 function publication_date_form_node_form_alter(&$form, &$form_state, $form_id) {
   $node = $form["#node"];
-  $form['author']['pubdate'] = array(
+  $form['options']['pubdate'] = array(
     '#type' => 'textfield',
     '#title' => t('Published on'),
     '#maxlength' => 25,
     '#description' => t('Format: %time. Leave blank to use the time of form submission.', array('%time' => format_date(REQUEST_TIME, 'custom', 'Y-m-d H:i:s O'))),
+    '#weight' => -1,
   );
   if ($form['nid'] !== NULL && isset($node->published_at) && $node->published_at) {
-    $form['author']['pubdate']['#default_value'] = format_date($node->published_at, 'custom', 'Y-m-d H:i:s O');
+    $form['options']['pubdate']['#default_value'] = format_date($node->published_at, 'custom', 'Y-m-d H:i:s O');
   }
   $form['#validate'][] = 'publication_date_pubdate_validate';
   $form['#submit'][] = 'publication_date_pubdate_submit';
