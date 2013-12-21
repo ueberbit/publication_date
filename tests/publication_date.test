@@ -75,7 +75,7 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $published_node = node_load($node->nid);
     $this->assertTrue($published_node->published_at > $time, 'Published date is reset');
 
-    // now try it by purely pushing the forms around
+    // Now try it by purely pushing the forms around.
 
   }
 
@@ -90,13 +90,14 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $edit["body[$langcode][0][value]"] = 'publication node test body ' . $this->randomName(32) . ' ' . $this->randomName(32);
     $edit['status'] = 1;
 
-    // hard to test created time == REQUEST_TIME because simpletest launches a new HTTP session, so just check it's set
+    // Hard to test created time == REQUEST_TIME because simpletest launches a
+    // new HTTP session, so just check it's set.
     $this->drupalPost('node/add/page', $edit, t('Save'));
     $node = $this->drupalGetNodeByTitle($edit['title']);
     $this->drupalGet('node/' . $node->nid . '/edit');
     $value = $this->_getPubdateFieldValue();
 
-    // make sure it was created with Published At set
+    // Make sure it was created with Published At set.
     $this->assertNotNull($value, t('Publication date set initially'));
 
     // Unpublish the node and check that the field value is maintained.
@@ -140,20 +141,20 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $this->assertFieldByName('pubdate', '', t('Publication date field is empty'));
   }
 
-  // test that it cares about setting the published_at
-  // this is useful for people using 'migrate' etc
+  // Test that it cares about setting the published_at field.
+  // This is useful for people using 'migrate' etc.
   function testActionSavingSetDate() {
     $node = $this->drupalCreateNode(array('status' => 0));
     $unpublished_node = node_load($node->nid);
     $this->assertTrue(empty($unpublished_node->published_at),'Published date is initially empty');
 
-    // now published this with our custom time
+    // Now publish this with our custom time...
     $unpublished_node->status =1;
     $static_time = 12345678;
     $unpublished_node->published_at = $static_time;
     node_save($unpublished_node);
     $published_node = node_load($node->nid);
-    // and see if it comes back with it correctly
+    // ...and see if it comes back with it correctly.
     $this->assertTrue(is_numeric($published_node->published_at),'Published date is integer/numberic once published');
     $this->assertTrue($published_node->published_at == $static_time,'Published date is set to what we expected');
   }

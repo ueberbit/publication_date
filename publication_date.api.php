@@ -21,7 +21,7 @@
  * @see _publication_date_set_date()
  */
 function hook_publication_date_alter(&$published_at, $node, $op) {
-  // Is the node being published?
+  // Check if the node is being published.
   if ($node->status == 1) {
     // If a future publication date was set, change it to the curret time.
     $now = REQUEST_TIME;

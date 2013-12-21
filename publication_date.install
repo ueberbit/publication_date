@@ -39,10 +39,10 @@ function publication_date_schema() {
  */
 function publication_date_install() {
 
-  // update existing nodes
+  // Set publication dates for existing nodes.
   _publication_date_update_existing();
 
-  // The hooks of this module must be called after some other modules (scheduler, ...)
+  // This module must be called after some other modules (i.e. Scheduler).
   db_update('system')
     ->fields(array('weight' => 99))
     ->condition('name', 'publication_date')
@@ -50,7 +50,10 @@ function publication_date_install() {
 }
 
 /**
- * Function to update the existing nodes on install so sorting will work properly.
+ * Helper function to update the existing nodes on install.
+ *
+ * We can not know the exact date of publication, so $node->published_at will
+ * initially contain the creation date for already publisned nodes.
  */
 function _publication_date_update_existing() {
   $query = db_select('node');
