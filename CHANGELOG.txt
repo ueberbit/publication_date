@@ -1,4 +1,7 @@
 
+Publication Date 7.x-2.x, xxxx-xx-xx
+------------------------------------------
+
 Publication Date 7.x-2.0, 2014-06-07
 ------------------------------------------
 #2157049 by balsama, markie, jstoller: Add permission to modify Published On date.
