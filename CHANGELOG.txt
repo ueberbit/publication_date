@@ -1,6 +1,7 @@
 
-Publication Date 7.x-2.0, xxxx-xx-xx
+Publication Date 7.x-2.0, 2014-06-07
 ------------------------------------------
+#2157049 by balsama, markie, jstoller: Add permission to modify Published On date.
 #2157043 by balsama: Move "Published on" field from Author vertical tab to
   Options vertical tab.
 #2094395 by jstoller: Implement hook_publication_date_alter(), so other modules
