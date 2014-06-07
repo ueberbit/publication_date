@@ -1,5 +1,5 @@
 
-Publication Date 7.x-1.x, xxxx-xx-xx
+Publication Date 7.x-2.0, xxxx-xx-xx
 ------------------------------------------
 #2157043 by balsama: Move "Published on" field from Author vertical tab to
   Options vertical tab.
