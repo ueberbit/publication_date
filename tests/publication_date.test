@@ -21,6 +21,7 @@ class PublicationDateTestCase extends DrupalWebTestCase {
       'create page content',
       'edit own page content',
       'administer nodes',
+      'set page published on date',
       ));
     $this->drupalLogin($this->privileged_user);
   }

@@ -130,6 +130,10 @@ function publication_date_form_node_form_alter(&$form, &$form_state, $form_id) {
   if ($form['nid'] !== NULL && isset($node->published_at) && $node->published_at) {
     $form['options']['pubdate']['#default_value'] = format_date($node->published_at, 'custom', 'Y-m-d H:i:s O');
   }
+  $form['options']['pubdate']['#access'] = user_access('set ' . $node->type . ' published on date');
+  if (user_access('set ' . $node->type . ' published on date')) {
+    $form['options']['#access'] = TRUE;
+  }
   $form['#validate'][] = 'publication_date_pubdate_validate';
   $form['#submit'][] = 'publication_date_pubdate_submit';
 }
@@ -159,4 +163,40 @@ function publication_date_pubdate_submit($form, &$form_state) {
   // Set $node->published_at to the publication date field value, if it was set,
   // or zero if it was not.
   $form_state['node']->published_at = empty($form_state['values']['pubdate']) ? 0 : strtotime(($form_state['values']['pubdate']));
+}
+
+/**
+ * Implements hook_permisson().
+ */
+function publication_date_permission() {
+  $permissions = array();
+
+  // Generate permissions to modify Published On date for all node types.
+  foreach (node_permissions_get_configured_types() as $type) {
+    $permissions += publication_date_list_permissions($type);
+  }
+
+  return $permissions;
+}
+
+/**
+ * Helper function to generate permission each content type.
+ *
+ * @param $type
+ *   The machine-readable name of the node type.
+ * @return
+ *   An array of permission names and description.
+ */
+function publication_date_list_permissions($type) {
+  $name = node_type_get_name($type);
+  $type = check_plain($type);
+
+  $permissions = array(
+    "set $type published on date" => array(
+      'title' => t('Modify %type_name "Published On" date.', array('%type_name' => $name)),
+      'description' => t('Change the "Published On" date for this content type.'),
+    ),
+  );
+
+  return $permissions;
 }
