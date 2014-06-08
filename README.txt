@@ -1,17 +1,17 @@
 
 README
 --------------------------------------------------------------------------
-The Publication Date module adds a field to each node containing the date when
-it was first published.
+The Publication Date module adds a "Published on" date for each node,
+containing the date when it was first published.
 
-This published date field can be used in any templates, or views, and integrates
-well with the Scheduler module: <http://drupal.org/project/scheduler>
+This published on date can be used in any templates, or views, and integrates
+well with the Scheduler module (http://drupal.org/project/scheduler).
 
 Without this, the only dates available for nodes are their created date and
 changed date, but these are often insufficient to meet the needs of publishing
-workflows. Sorting nodes by their created date doesn't account for content which
-is held in draft form for a time while being readied for publication. Sorting
-nodes by their changed date fails to account for content needing minor
+workflows. Sorting nodes by their created date doesn't account for content
+which is held in draft form for a time while being readied for publication.
+Sorting nodes by their changed date fails to account for content needing minor
 corrections after being published.
 
 The "Published on" date can be edited through the node edit form, allowing a
@@ -25,13 +25,23 @@ INSTALLATION
 1. Copy the publication_date folder to your modules directory
 2. Go to admin > Site building > Modules, and enable this module.
 
-This will add a new $node->published_at field to nodes, containing the published
-date, or 'false' if no published date has been set. You can then use this field
-in any templates. Moreover, this field is available in the views parameters.
+This will add a new $node->published_at field to nodes, containing the
+published date, or 'false' if no published date has been set. You can then use
+this field in any templates. Moreover, this field is available in the views
+parameters.
 
-IMPORTANT: For nodes that were published BEFORE the installation of this module,
-we can not know the exact date of publication, so $node->published_at will
-initially contain the creation date.
+IMPORTANT: For nodes that were published BEFORE the installation of this
+module, we can not know the exact date of publication, so $node->published_at
+will initially contain the creation date.
+
+
+UPGRADING FROM 1.0 TO 2.x
+--------------------------------------------------------------------------
+Please pay special attention to the README and CHANGELOG, as there are some
+changes to the way the Published On date is handled. Notably in 2.x, once the
+date has been set for a node it will persist until manually changed, even if
+the node is unpublished and republished. In version 1.0 the date was lost when
+the node was unpublished.
 
 
 API
@@ -43,6 +53,10 @@ date when it is set. See publication_date.api.php for more documentation.
 CREDITS
 --------------------------------------------------------------------------
 The Publication Date module was originally written by Emmanuelle Gouleau and
-Tristan Marly from Clever Age: http://www.clever-age.org
+Tristan Marly from Clever Age (http://www.clever-age.org).
 
-The initial D7 Port was by Joost van der Locht
+D7 version initially ported by joostvdl (https://drupal.org/user/115719) and
+maintained by dgtlmoon (https://drupal.org/user/25027).
+
+Publication Date is currently maintained by jstoller
+(https://drupal.org/user/99012).
