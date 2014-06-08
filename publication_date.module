@@ -113,7 +113,7 @@ function publication_date_views_api() {
 }
 
 /**
- * Implementation of hook_form_BASE_ID_alter().
+ * Implements hook_form_BASE_ID_alter().
  *
  * Display the publication date on the node edit form.
  * @note: This won't work where you have Display Suite/REL enabled.
