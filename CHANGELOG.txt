@@ -1,6 +1,8 @@
 
 Publication Date 7.x-2.x, xxxx-xx-xx
 ------------------------------------------
+When granting access to the Published On field, don't grant access to any other
+  collateral fields.
 
 Publication Date 7.x-2.0, 2014-06-07
 ------------------------------------------
