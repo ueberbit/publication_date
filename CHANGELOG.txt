@@ -1,6 +1,7 @@
 
 Publication Date 7.x-2.x, xxxx-xx-xx
 ------------------------------------------
+#2355633 by muschpusch: Remove obsolete code in hook_node_load.
 #2344527 by jstoller: Remove inapropriate files array declarations.
 #2157049 by jstoller: When granting access to the Published On field, don't
   grant access to any other collateral fields.
