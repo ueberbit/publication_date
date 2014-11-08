@@ -198,3 +198,30 @@ function publication_date_list_permissions($type) {
 
   return $permissions;
 }
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function publication_date_entity_property_info_alter(&$info) {
+  $properties = &$info['node']['properties'];
+
+  $properties['published_at'] = array(
+    'label' => t('Published at'),
+    'description' => t('The publication date of the node.'),
+    'type' => 'date',
+    'getter callback' => '_publication_date_entity_property_getter',
+  );
+}
+
+/**
+ * Publication date getter for hook_entity_property_info_alter()
+ *
+ * @param $entity
+ *   The entity object.
+ *
+ * @return integer
+ *   The publication date as a timestamp get from the entity.
+ */
+function _publication_date_entity_property_getter($entity) {
+  return $entity->published_at;
+}
