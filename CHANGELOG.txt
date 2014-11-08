@@ -1,6 +1,7 @@
 
 Publication Date 7.x-2.x, xxxx-xx-xx
 ------------------------------------------
+#2332253 by jgalletta, finne: Add Entity API entity wrapper support.
 #1970822 by soulston, Nodz, jostler: Add Display Suite integration.
 #2355633 by muschpusch: Remove obsolete code in hook_node_load.
 #2344527 by jstoller: Remove inapropriate files array declarations.
