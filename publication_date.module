@@ -11,19 +11,6 @@
 function publication_date_node_load($nodes, $types) {
   foreach ($nodes as $node) {
     $node->published_at = _publication_date_get_date($node->nid);
-
-    // We have to manage the 'old nodes', i.e nodes that have been published
-    // BEFORE the activation of this module.
-    if (!$node->published_at) {
-      $row = db_select('node', 'n')
-        ->fields('n', array('created', 'status'))
-        ->condition('nid', $node->nid)
-        ->execute()
-        ->fetchAssoc();
-      if ($row && $row['status'] == 1) {
-        $node->published_at = $row['created'];
-      }
-    }
   }
 }
 
