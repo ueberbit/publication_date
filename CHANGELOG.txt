@@ -1,5 +1,5 @@
 
-Publication Date 7.x-2.x, xxxx-xx-xx
+Publication Date 7.x-2.1, 2014-11-11
 ------------------------------------------
 #2332253 by jgalletta, finne: Add Entity API entity wrapper support.
 #1970822 by soulston, Nodz, jostler: Add Display Suite integration.
