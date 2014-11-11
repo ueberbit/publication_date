@@ -1,11 +1,8 @@
 
 README
 --------------------------------------------------------------------------
-The Publication Date module adds a "Published on" date for each node,
+The Publication Date module adds a "Published on" date to each node,
 containing the date when it was first published.
-
-This published on date can be used in any templates, or views, and integrates
-well with the Scheduler module (http://drupal.org/project/scheduler).
 
 Without this, the only dates available for nodes are their created date and
 changed date, but these are often insufficient to meet the needs of publishing
@@ -14,16 +11,26 @@ which is held in draft form for a time while being readied for publication.
 Sorting nodes by their changed date fails to account for content needing minor
 corrections after being published.
 
-The "Published on" date can be edited through the node edit form, allowing a
-custom published date to be set. If a custom date is set prior to publication,
-it will be respected when the node is published. The publication date is also
-retained when a node is unpublished and then republished.
+The "Published on" date can be used in any templates, or views, and integrates
+well with the Scheduler module. Publication date also incudes integration with
+the Display Suite module and has entity wrapper support, so it can
+integrate with modules like Rules that use the Entity API module.
+
+By default, the "Published on" date is set automatically when a node is first
+published, but it can also be edited through the node edit form, allowing a
+custom published date to be set. This is useful when backdating migrated content
+from an older site. The module provides permisions for restricting this field,
+per content type. If a custom date is set prior to publication, it will be
+respected when the node is published. The publication date is also retained when
+a node is unpublished and then republished.
 
 
 INSTALLATION
 --------------------------------------------------------------------------
 1. Copy the publication_date folder to your modules directory
-2. Go to admin > Site building > Modules, and enable this module.
+2. Go to /admin/modules and enable this module.
+3. If you want to give users access to edit the "Published on" date, then go
+   to /admin/people/permissions and set permissions as desired.
 
 This will add a new $node->published_at field to nodes, containing the
 published date, or 'false' if no published date has been set. You can then use
