@@ -1,4 +1,8 @@
 
+Publication Date 7.x-2.x, xxxx-xx-xx
+------------------------------------------
+#2378797 by ramsalt: Add views argument handlers.
+
 Publication Date 7.x-2.1, 2014-11-11
 ------------------------------------------
 #2332253 by jgalletta, finne: Add Entity API entity wrapper support.
