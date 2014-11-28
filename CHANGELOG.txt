@@ -1,6 +1,8 @@
 
 Publication Date 7.x-2.x, xxxx-xx-xx
 ------------------------------------------
+#2379503 by jstoller: Reset the publication date when a node is cloned using the
+  Node Clone module.
 #2378797 by ramsalt: Add views argument handlers.
 
 Publication Date 7.x-2.1, 2014-11-11
