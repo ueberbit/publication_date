@@ -225,3 +225,14 @@ function publication_date_entity_property_info_alter(&$info) {
 function _publication_date_entity_property_getter($entity) {
   return $entity->published_at;
 }
+
+/**
+ * Implements hook_clone_node_alter().
+ *
+ * Reset the publication date when a node is cloned using the Node Clone module.
+ *
+ * @see clone.api.php
+ */
+function publication_date_clone_node_alter(&$node, $context) {
+  $node->published_at = NULL;
+}
