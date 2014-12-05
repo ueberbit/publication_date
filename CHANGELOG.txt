@@ -1,6 +1,7 @@
 
 Publication Date 7.x-2.x, xxxx-xx-xx
 ------------------------------------------
+#2387551 by jstoller: Add permission to modify any published on date.
 #2210853 by jstoller: Add support for jQuery date picker when Date Popup module
   is enabled.
 #2379503 by jstoller: Reset the publication date when a node is cloned using the
