@@ -64,3 +64,13 @@ function _publication_date_update_existing() {
     ->from($nids)
     ->execute();
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function publication_date_uninstall() {
+  // Remove Publication Date configuration from the variables table.
+  variable_del('publication_date_popup_enable');
+  variable_del('publication_date_popup_year_start');
+  variable_del('publication_date_popup_year_end');
+}
