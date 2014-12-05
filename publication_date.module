@@ -276,7 +276,7 @@ function publication_date_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('publication_date_admin_form'),
     'access arguments' => array('administer publication date'),
-    'file' => 'publication_date.admin.inc',
+    'file' => 'includes/publication_date.admin.inc',
   );
 
   return $items;
