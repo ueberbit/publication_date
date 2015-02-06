@@ -11,10 +11,10 @@ which is held in draft form for a time while being readied for publication.
 Sorting nodes by their changed date fails to account for content needing minor
 corrections after being published.
 
-The "Published on" date can be used in any templates, or views, and integrates
-well with the Scheduler module. Publication date also incudes integration with
-the Display Suite module and has entity wrapper support, so it can
-integrate with modules like Rules that use the Entity API module.
+The "Published on" date can be used in any templates, or views. Publication date
+also incudes integration with the Display Suite module and has entity wrapper
+support, so it can integrate with modules like Rules that use the Entity API
+module.
 
 By default, the "Published on" date is set automatically when a node is first
 published, but it can also be edited through the node edit form, allowing a
