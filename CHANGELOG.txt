@@ -1,6 +1,8 @@
 
-Publication Date 7.x-2.x, xxxx-xx-xx
+Publication Date 7.x-2.2, xxxx-xx-xx
 ------------------------------------------
+#2414509 by jstoller: Remove mention of Scheduler integration from README.txt.
+#2414645 by jstoller: Fix published on field doesn't display for non-admin users.
 #2390939 by jstoller: Fix validation error introduced in #2210853.
 #2387551 by jstoller: Add permission to modify any published on date.
 #2210853 by jstoller: Add support for jQuery date picker when Date Popup module
