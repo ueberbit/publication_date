@@ -132,6 +132,7 @@ function publication_date_form_node_form_alter(&$form, &$form_state, $form_id) {
       '#date_increment' => 1,
       '#date_year_range' => '-' . variable_get('publication_date_popup_year_start', '6') . ':+' . variable_get('publication_date_popup_year_end', '1'),
       '#weight' => -1,
+      '#access' => TRUE,
     );
   }
   // Falback to a standard text field.
