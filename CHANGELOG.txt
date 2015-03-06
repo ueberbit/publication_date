@@ -1,5 +1,5 @@
 
-Publication Date 7.x-2.2, xxxx-xx-xx
+Publication Date 7.x-2.2, 2015-03-06
 ------------------------------------------
 #2414509 by jstoller: Remove mention of Scheduler integration from README.txt.
 #2414645 by jstoller: Fix published on field doesn't display for non-admin users.
