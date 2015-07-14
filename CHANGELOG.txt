@@ -1,4 +1,9 @@
 
+Publication Date 7.x-2.x, xxxx-xx-xx
+------------------------------------------
+#2499731 by dtamajon, jstoller: Undefined index: #default_value in
+  date_popup_process_time_part().
+
 Publication Date 7.x-2.2, 2015-03-06
 ------------------------------------------
 #2414509 by jstoller: Remove mention of Scheduler integration from README.txt.
