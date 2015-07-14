@@ -148,9 +148,7 @@ function publication_date_form_node_form_alter(&$form, &$form_state, $form_id) {
   }
 
   // If there is an existing publication date, set it as the default value.
-  if (!empty($published_at)) {
-    $form['options']['pubdate']['#default_value'] = format_date($published_at, 'custom', $date_format);
-  }
+  $form['options']['pubdate']['#default_value'] = empty($published_at) ? '' : format_date($published_at, 'custom', $date_format);
 
   // If the user can access pubdate, we need to make sure they also have access
   // to the options group.
