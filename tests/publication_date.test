@@ -168,8 +168,8 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $value='';
 
     if ( $this->assertField('pubdate', t('Published At field exists')) ) {
-      $field = reset($this->xpath('//input[@id="edit-pubdate"]'));
-      $value = (string)$field['value'];
+      $field = $this->xpath('//input[@id="edit-pubdate"]');
+      $value = (string)$field[0]['value'];
       return $value;
     }
 
