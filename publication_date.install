@@ -74,3 +74,13 @@ function publication_date_uninstall() {
   variable_del('publication_date_popup_year_start');
   variable_del('publication_date_popup_year_end');
 }
+
+/**
+* Change default published_at value from 0 to 2147483647.
+*/
+function publication_date_update_7001() {
+  db_update('publication_date')
+    ->fields(array('published_at' => 2147483647))
+    ->condition('published_at', 0)
+    ->execute();
+}

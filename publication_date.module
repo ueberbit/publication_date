@@ -6,11 +6,40 @@
  */
 
 /**
+ * Define the value stored in the database when a node is unpublished and no
+ * publication date has been set. We use the largest number that the database
+ * field can hold so unpublished nodes will appear newer than published nodes
+ * when sorted by publication date.
+ *
+ * @note: This is going to trigger the Year 2038 problem.
+ */
+define('PUBLICATION_DATE_DEFAULT', 2147483647);
+
+/**
  * Implements hook_node_load().
+ *
+ * For each node we set two properties...
+ *   - published_at: Equals the publication date in Epoc time, if one has been
+ *     set, or NULL otherwise.
+ *   - published_at_or_now: Equals published_at if a publication date has been
+ *     set, or the current REQUEST_TIME if it hasn't.
  */
 function publication_date_node_load($nodes, $types) {
   foreach ($nodes as $node) {
-    $node->published_at = _publication_date_get_date($node->nid);
+    // Get the publication date from the database.
+    $published_at = _publication_date_get_date($node->nid);
+    // If a publication date has been set, we add it to the node object in both
+    // the published_at and published_at_or_now properties.
+    if ($published_at) {
+      $node->published_at = $published_at;
+      $node->published_at_or_now = $published_at;
+    }
+    // If a publication date has not yet been set, we set published_at to NULL
+    // and published_at_or_now to REQUEST_TIME.
+    else {
+      $node->published_at = NULL;
+      $node->published_at_or_now = REQUEST_TIME;
+    }
   }
 }
 
@@ -54,12 +83,20 @@ function publication_date_node_delete($node) {
  * @see hook_node_update()
  */
 function _publication_date_set_date($node, $op = '') {
-  // Set a default publication date value.
-  $published_at = empty($node->published_at) ? 0 : $node->published_at;
-
-  // If no publication date has been set and the node is published then use
-  // REQUEST_TIME. Otherwise, use the default publication date.
-  $published_at = ($published_at == 0 && $node->status == 1) ? REQUEST_TIME : $published_at;
+  // If a publication date has already been set then retain it.
+  if (!empty($node->published_at)) {
+    $published_at = $node->published_at;
+  }
+  // Otherwise, if no publication date has been set and the node is published
+  // then set the publication date to REQUEST_TIME.
+  elseif ($node->status == 1) {
+    $published_at = REQUEST_TIME;
+  }
+  // Otherwise, if no publication date has been set and the node is unpublished
+  // then store the default publication date.
+  else {
+    $published_at = PUBLICATION_DATE_DEFAULT;
+  }
 
   // Allow other modules to alter the publication date before it is saved.
   drupal_alter('publication_date', $published_at, $node, $op);
@@ -85,7 +122,8 @@ function _publication_date_set_date($node, $op = '') {
  * @see hook_node_load()
  */
 function _publication_date_get_date($nid) {
-  $date = db_query("SELECT published_at FROM {publication_date} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
+  $published_at = db_query("SELECT published_at FROM {publication_date} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
+  $date = (empty($published_at) || $published_at == PUBLICATION_DATE_DEFAULT) ? FALSE : $published_at;
   return $date;
 }
 
@@ -109,7 +147,7 @@ function publication_date_form_node_form_alter(&$form, &$form_state, $form_id) {
   $node = $form["#node"];
 
   // If this is an existing node then get the currently set publication date.
-  $published_at = ($form['nid'] !== NULL && isset($node->published_at) && $node->published_at) ? $node->published_at : 0;
+  $published_at = ($form['nid'] == NULL || empty($node->published_at)) ? NULL : $node->published_at;
 
   // Check if the user has permission to edit the publication date.
   $pubdate_access = user_access('set any published on date') || user_access('set ' . $node->type . ' published on date');
@@ -189,9 +227,9 @@ function publication_date_pubdate_validate($form, &$form_state) {
  * deal with.
  */
 function publication_date_pubdate_submit($form, &$form_state) {
-  // Set $node->published_at to the publication date field value, if it was set,
-  // or zero if it was not.
-  $form_state['node']->published_at = empty($form_state['values']['pubdate']) ? 0 : strtotime(($form_state['values']['pubdate']));
+  // Set $node->published_at to the publication date field value if it was set,
+  // or NULL if it was not.
+  $form_state['node']->published_at = empty($form_state['values']['pubdate']) ? NULL : strtotime(($form_state['values']['pubdate']));
 }
 
 /**
@@ -249,7 +287,13 @@ function publication_date_entity_property_info_alter(&$info) {
     'label' => t('Published at'),
     'description' => t('The publication date of the node.'),
     'type' => 'date',
-    'getter callback' => '_publication_date_entity_property_getter',
+    'getter callback' => '_publication_date_published_at_getter',
+  );
+  $properties['published_at_or_now'] = array(
+    'label' => t('Published at or now'),
+    'description' => t('The publication date of the node, or the current time if no date has been set.'),
+    'type' => 'date',
+    'getter callback' => '_publication_date_published_at_or_now_getter',
   );
 }
 
@@ -262,8 +306,21 @@ function publication_date_entity_property_info_alter(&$info) {
  * @return integer
  *   The publication date as a timestamp get from the entity.
  */
-function _publication_date_entity_property_getter($entity) {
+function _publication_date_published_at_getter($entity) {
   return $entity->published_at;
+}
+
+/**
+ * Publication date or now getter for hook_entity_property_info_alter()
+ *
+ * @param $entity
+ *   The entity object.
+ *
+ * @return integer
+ *   The publication date (or REQUEST_TIME) as a timestamp get from the entity.
+ */
+function _publication_date_published_at_or_now_getter($entity) {
+  return $entity->published_at_or_now;
 }
 
 /**
@@ -275,6 +332,7 @@ function _publication_date_entity_property_getter($entity) {
  */
 function publication_date_clone_node_alter(&$node, $context) {
   $node->published_at = NULL;
+  $node->published_at_or_now = REQUEST_TIME;
 }
 
 /**

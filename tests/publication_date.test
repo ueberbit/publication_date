@@ -35,6 +35,7 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $node = $this->drupalCreateNode(array('status' => 0));
     $unpublished_node = node_load($node->nid);
     $this->assertTrue(empty($unpublished_node->published_at), 'Published date is initially empty');
+    $this->assertTrue($unpublished_node->published_at_or_now == REQUEST_TIME, 'Published at or now date is REQUEST_TIME');
 
     // Publish the node.
     $unpublished_node->status =1;
@@ -42,6 +43,7 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     $published_node = node_load($node->nid);
     $this->assertTrue(is_numeric($published_node->published_at), 'Published date is integer/numberic once published');
     $this->assertTrue($published_node->published_at == REQUEST_TIME, 'Published date is REQUEST_TIME');
+    $this->assertTrue($unpublished_node->published_at_or_now == $published_node->published_at, 'Published at or now date equals published date');
 
     // Remember time.
     $time = $published_node->published_at;
@@ -63,6 +65,7 @@ class PublicationDateTestCase extends DrupalWebTestCase {
     node_save($unpublished_node);
     $unpublished_node = node_load($node->nid);
     $this->assertTrue($unpublished_node->published_at == $time, 'Custom published date is saved');
+    $this->assertTrue($unpublished_node->published_at_or_now == $time, 'Published at or now date equals published date');
 
     // Republish the node and check that the field value is maintained.
     $unpublished_node->status = 1;

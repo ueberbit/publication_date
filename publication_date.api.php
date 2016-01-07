@@ -10,7 +10,9 @@
  * database on node update/insert.
  *
  * @param integer $published_at
- *   A Unix timestamp representing the publication date to be altered.
+ *   A Unix timestamp representing the publication date to be altered. If no
+ *   publication date has been set then $published_at should equal the defined
+ *   constant PUBLICATION_DATE_DEFAULT.
  * @param object $node
  *   The node object.
  * @param string $op
@@ -24,11 +26,6 @@ function hook_publication_date_alter(&$published_at, $node, $op) {
   // Check if the node is being published.
   if ($node->status == 1) {
     // If a future publication date was set, change it to the curret time.
-    $now = REQUEST_TIME;
-    $published_at = ($published_at > $now) ? $now : $published_at;
-  }
-  else {
-    // If the node isn't published then reset the published date to zero.
-    $published_at = 0;
+    $published_at = ($published_at > REQUEST_TIME) ? REQUEST_TIME : $published_at;
   }
 }
