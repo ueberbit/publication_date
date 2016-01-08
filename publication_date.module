@@ -16,6 +16,25 @@
 define('PUBLICATION_DATE_DEFAULT', 2147483647);
 
 /**
+ * Implements hook_entity_base_field_info().
+ *
+ * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+ *
+ * @return array
+ */
+function publication_date_entity_base_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
+  $fields = [];
+
+  if ($entity_type->id() == 'node') {
+    $fields['publication_date'] = \Drupal\Core\Field\BaseFieldDefinition::create('timestamp')
+      ->setLabel(t('Publication date'))
+      ->setDescription(t('Keep the publication timestamp for each node.'));
+  }
+
+  return $fields;
+}
+
+/**
  * Implements hook_node_load().
  *
  * For each node we set two properties...
