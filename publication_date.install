@@ -9,15 +9,11 @@
  * Implements hook_install().
  */
 function publication_date_install() {
-
   // Set publication dates for existing nodes.
   _publication_date_update_existing();
 
   // This module must be called after some other modules (i.e. Scheduler).
-  db_update('system')
-    ->fields(array('weight' => 99))
-    ->condition('name', 'publication_date')
-    ->execute();
+  module_set_weight('publication_date', 99);
 }
 
 /**
