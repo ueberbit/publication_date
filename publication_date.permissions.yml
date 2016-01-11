@@ -1,0 +1,10 @@
+administer publication date:
+  title: 'Administer publication date'
+  description: 'Administer Publication date settings'
+
+set any published on date:
+  title: 'Modify any "Published On" date'
+  description: 'Change the "Published On" date for any content type'
+
+permission_callbacks:
+  - \Drupal\publication_date\PublicationDateNodePermissions::nodeTypePermissions

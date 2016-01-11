@@ -252,51 +252,6 @@ function publication_date_pubdate_submit($form, &$form_state) {
 }
 
 /**
- * Implements hook_permisson().
- */
-function publication_date_permission() {
-  $permissions = array(
-    'administer publication date' => array(
-      'title' => t('Administer publication date'),
-      'description' => t('Administer Publication date settings'),
-    ),
-    'set any published on date' => array(
-      'title' => t('Modify any "Published On" date'),
-      'description' => t('Change the "Published On" date for any content type.'),
-    ),
-  );
-
-  // Generate permissions to modify Published On date for all node types.
-  foreach (node_permissions_get_configured_types() as $type) {
-    $permissions += publication_date_list_permissions($type);
-  }
-
-  return $permissions;
-}
-
-/**
- * Helper function to generate permission each content type.
- *
- * @param $type
- *   The machine-readable name of the node type.
- * @return
- *   An array of permission names and description.
- */
-function publication_date_list_permissions($type) {
-  $name = node_type_get_name($type);
-  $type = check_plain($type);
-
-  $permissions = array(
-    "set $type published on date" => array(
-      'title' => t('Modify %type_name "Published On" date.', array('%type_name' => $name)),
-      'description' => t('Change the "Published On" date for this content type.'),
-    ),
-  );
-
-  return $permissions;
-}
-
-/**
  * Implements hook_entity_property_info_alter().
  */
 function publication_date_entity_property_info_alter(&$info) {
