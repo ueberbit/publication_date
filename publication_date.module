@@ -252,52 +252,6 @@ function publication_date_pubdate_submit($form, &$form_state) {
 }
 
 /**
- * Implements hook_entity_property_info_alter().
- */
-function publication_date_entity_property_info_alter(&$info) {
-  $properties = &$info['node']['properties'];
-
-  $properties['published_at'] = array(
-    'label' => t('Published at'),
-    'description' => t('The publication date of the node.'),
-    'type' => 'date',
-    'getter callback' => '_publication_date_published_at_getter',
-  );
-  $properties['published_at_or_now'] = array(
-    'label' => t('Published at or now'),
-    'description' => t('The publication date of the node, or the current time if no date has been set.'),
-    'type' => 'date',
-    'getter callback' => '_publication_date_published_at_or_now_getter',
-  );
-}
-
-/**
- * Publication date getter for hook_entity_property_info_alter()
- *
- * @param $entity
- *   The entity object.
- *
- * @return integer
- *   The publication date as a timestamp get from the entity.
- */
-function _publication_date_published_at_getter($entity) {
-  return $entity->published_at;
-}
-
-/**
- * Publication date or now getter for hook_entity_property_info_alter()
- *
- * @param $entity
- *   The entity object.
- *
- * @return integer
- *   The publication date (or REQUEST_TIME) as a timestamp get from the entity.
- */
-function _publication_date_published_at_or_now_getter($entity) {
-  return $entity->published_at_or_now;
-}
-
-/**
  * Implements hook_clone_node_alter().
  *
  * Reset the publication date when a node is cloned using the Node Clone module.
