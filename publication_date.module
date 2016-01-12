@@ -35,80 +35,18 @@ function publication_date_entity_base_field_info(\Drupal\Core\Entity\EntityTypeI
 }
 
 /**
- * Implements hook_node_load().
+ * Implements hook_ENTITY_TYPE_presave().
  *
- * For each node we set two properties...
- *   - published_at: Equals the publication date in Epoc time, if one has been
- *     set, or NULL otherwise.
- *   - published_at_or_now: Equals published_at if a publication date has been
- *     set, or the current REQUEST_TIME if it hasn't.
+ * @param \Drupal\node\NodeInterface $node
  */
-function publication_date_node_load($nodes, $types) {
-  foreach ($nodes as $node) {
-    // Get the publication date from the database.
-    $published_at = _publication_date_get_date($node->nid);
-    // If a publication date has been set, we add it to the node object in both
-    // the published_at and published_at_or_now properties.
-    if ($published_at) {
-      $node->published_at = $published_at;
-      $node->published_at_or_now = $published_at;
-    }
-    // If a publication date has not yet been set, we set published_at to NULL
-    // and published_at_or_now to REQUEST_TIME.
-    else {
-      $node->published_at = NULL;
-      $node->published_at_or_now = REQUEST_TIME;
-    }
-  }
-}
-
-/**
- * Implements hook_node_insert().
- */
-function publication_date_node_insert($node) {
-  // Save the publication date.
-  _publication_date_set_date($node, 'insert');
-}
-
-/**
- * Implements hook_node_update().
- */
-function publication_date_node_update($node) {
-  // Save the publication date.
-  _publication_date_set_date($node, 'update');
-}
-
-/**
- * Implements hook_node_delete().
- */
-function publication_date_node_delete($node) {
-  // Delete the publication date for the deleted node.
-  db_delete('publication_date')
-    ->condition('nid', $node->nid)
-    ->execute();
-}
-
-/**
- * Worker function to save the published date to the database.
- *
- * @param object $node
- *   The node object.
- * @param string $op
- *   The node opperation being performed:
- *   - 'insert': a new node was created
- *   - 'update': an existing node was updated
- *
- * @see hook_node_insert()
- * @see hook_node_update()
- */
-function _publication_date_set_date($node, $op = '') {
+function publication_date_node_presave(\Drupal\node\NodeInterface $node) {
   // If a publication date has already been set then retain it.
-  if (!empty($node->published_at)) {
-    $published_at = $node->published_at;
+  if (!empty($node->published_at->value)) {
+    $published_at = $node->published_at->value;
   }
   // Otherwise, if no publication date has been set and the node is published
   // then set the publication date to REQUEST_TIME.
-  elseif ($node->status == 1) {
+  elseif ($node->isPublished()) {
     $published_at = REQUEST_TIME;
   }
   // Otherwise, if no publication date has been set and the node is unpublished
@@ -118,32 +56,15 @@ function _publication_date_set_date($node, $op = '') {
   }
 
   // Allow other modules to alter the publication date before it is saved.
-  drupal_alter('publication_date', $published_at, $node, $op);
+  $data = [
+    'published_at' => $published_at,
+    'node' => $node,
+    'op' => $node->isNew() ? 'insert' : 'update'
+  ];
+  \Drupal::moduleHandler()->alter('publication_date', $data);
 
   // Update the node object.
-  $node->published_at = $published_at;
-
-  // Save the publication date to the database.
-  db_merge('publication_date')
-    ->key(array('nid' => $node->nid))
-    ->fields(array('published_at' => $published_at))
-    ->execute();
-}
-
-/**
- * Worker function to get a published date from the database.
- *
- * @param int $nid
- *   The node ID.
- * @return the publication date for the given node, or false if the node is not
- *   published.
- *
- * @see hook_node_load()
- */
-function _publication_date_get_date($nid) {
-  $published_at = db_query("SELECT published_at FROM {publication_date} WHERE nid = :nid", array(':nid' => $nid))->fetchField();
-  $date = (empty($published_at) || $published_at == PUBLICATION_DATE_DEFAULT) ? FALSE : $published_at;
-  return $date;
+  $node->set('published_at', $published_at);
 }
 
 /**
@@ -259,8 +180,7 @@ function publication_date_pubdate_submit($form, &$form_state) {
  * @see clone.api.php
  */
 function publication_date_clone_node_alter(&$node, $context) {
-  $node->published_at = NULL;
-  $node->published_at_or_now = REQUEST_TIME;
+  $node->published_at->value = NULL;
 }
 
 /**

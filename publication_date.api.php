@@ -19,8 +19,6 @@
  *   The node opperation being performed:
  *   - 'insert': a new node was created
  *   - 'update': an existing node was updated
- *
- * @see _publication_date_set_date()
  */
 function hook_publication_date_alter(&$published_at, $node, $op) {
   // Check if the node is being published.

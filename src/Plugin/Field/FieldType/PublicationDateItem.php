@@ -38,7 +38,7 @@ class PublicationDateItem extends ChangedItem {
   public function applyDefaultValue($notify = TRUE) {
     parent::applyDefaultValue($notify);
     $value = $this->isPublished() ? REQUEST_TIME : NULL;
-    $published_at_or_now = isset($value) ? $value : PUBLICATION_DATE_DEFAULT;
+    $published_at_or_now = isset($value) ? $value : REQUEST_TIME;
     $this->setValue(['value' => $value, 'published_at_or_now' => $published_at_or_now], $notify);
     return $this;
   }
@@ -60,6 +60,8 @@ class PublicationDateItem extends ChangedItem {
    * {@inheritdoc}
    */
   public function preSave() {
+    // If no publication date has been set and the entity is unpublished then
+    // store the default publication date.
     if (!$this->isPublished() && !$this->value) {
       $this->value = PUBLICATION_DATE_DEFAULT;
     }

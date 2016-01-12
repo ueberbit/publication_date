@@ -23,6 +23,9 @@ function publication_date_install() {
  * initially contain the creation date for already publisned nodes.
  */
 function _publication_date_update_existing() {
+  // @todo: Convert to entity query.
+  return;
+
   $query = db_select('node');
   $query->addField('node', 'nid');
   $query->addField('node', 'created', 'published_at');
