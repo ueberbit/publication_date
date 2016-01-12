@@ -26,7 +26,7 @@ function publication_date_entity_base_field_info(\Drupal\Core\Entity\EntityTypeI
   $fields = [];
 
   if ($entity_type->id() == 'node') {
-    $fields['publication_date'] = \Drupal\Core\Field\BaseFieldDefinition::create('timestamp')
+    $fields['published_at'] = \Drupal\Core\Field\BaseFieldDefinition::create('published_at')
       ->setLabel(t('Publication date'))
       ->setDescription(t('Keep the publication timestamp for each node.'));
   }
