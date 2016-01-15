@@ -1,0 +1,8 @@
+{
+  "name": "drupal/publication_date",
+  "description": "Add a field containing the publication date.",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev",
+  "require": { }
+}
