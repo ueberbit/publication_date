@@ -5,6 +5,8 @@
  * Add a field to nodes containing the publication date.
  */
 
+use Drupal\Core\Field\BaseFieldDefinition;
+
 /**
  * Define the value stored in the database when a node is unpublished and no
  * publication date has been set. We use the largest number that the database
@@ -26,7 +28,7 @@ function publication_date_entity_base_field_info(\Drupal\Core\Entity\EntityTypeI
   $fields = [];
 
   if ($entity_type->id() == 'node') {
-    $fields['published_at'] = \Drupal\Core\Field\BaseFieldDefinition::create('published_at')
+    $fields['published_at'] = BaseFieldDefinition::create('published_at')
       ->setLabel(t('Published on'))
       ->setDescription(t('Keep the publication timestamp for each node.'))
       ->setRevisionable(TRUE)
