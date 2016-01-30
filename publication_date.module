@@ -161,17 +161,9 @@ function publication_date_clone_node_alter(&$node, $context) {
 }
 
 /**
- * Implements hook_menu().
+ * Implements hook_field_formatter_info_alter().
  */
-function publication_date_menu() {
-  $items['admin/config/content/publication-date'] = array(
-    'title' => 'Publication date',
-    'description' => 'Configure publication date settings when using the date popup module.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('publication_date_admin_form'),
-    'access arguments' => array('administer publication date'),
-    'file' => 'includes/publication_date.admin.inc',
-  );
-
-  return $items;
+function publication_date_field_formatter_info_alter(array &$info) {
+  $info['timestamp']['field_types'][] = 'published_at';
+  $info['timestamp_ago']['field_types'][] = 'published_at';
 }
