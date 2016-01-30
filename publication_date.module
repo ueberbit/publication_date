@@ -50,39 +50,6 @@ function publication_date_entity_base_field_info(\Drupal\Core\Entity\EntityTypeI
 }
 
 /**
- * Implements hook_ENTITY_TYPE_presave().
- *
- * @param \Drupal\node\NodeInterface $node
- */
-function publication_date_node_presave(\Drupal\node\NodeInterface $node) {
-  // If a publication date has already been set then retain it.
-  if (!empty($node->published_at->value)) {
-    $published_at = $node->published_at->value;
-  }
-  // Otherwise, if no publication date has been set and the node is published
-  // then set the publication date to REQUEST_TIME.
-  elseif ($node->isPublished()) {
-    $published_at = REQUEST_TIME;
-  }
-  // Otherwise, if no publication date has been set and the node is unpublished
-  // then store the default publication date.
-  else {
-    $published_at = PUBLICATION_DATE_DEFAULT;
-  }
-
-  // Allow other modules to alter the publication date before it is saved.
-  $data = [
-    'published_at' => $published_at,
-    'node' => $node,
-    'op' => $node->isNew() ? 'insert' : 'update'
-  ];
-  \Drupal::moduleHandler()->alter('publication_date', $data);
-
-  // Update the node object.
-  $node->set('published_at', $published_at);
-}
-
-/**
  * Implements hook_form_BASE_ID_alter().
  *
  * Display the publication date on the node edit form.

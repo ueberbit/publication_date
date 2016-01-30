@@ -84,10 +84,7 @@ class PublicationDateItem extends ChangedItem {
    * @inheritDoc
    */
   public function isEmpty() {
-    if (isset($this->value) || isset($this->published_at_or_now)) {
-      return FALSE;
-    }
-    return TRUE;
+    return FALSE;
   }
 
 }
