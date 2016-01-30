@@ -96,7 +96,6 @@ function publication_date_form_node_form_alter(&$form, \Drupal\Core\Form\FormSta
     // Check if the user has permission to edit the publication date.
     $form['published_at']['#access'] = $account->hasPermission('set any published on date') || $account->hasPermission('set ' . $node->type . ' published on date');
     $form['published_at']['#group'] = 'revision_information';
-    $form['published_at']['#weight'] = 90;
   }
 
   /*
