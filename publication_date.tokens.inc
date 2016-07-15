@@ -43,7 +43,7 @@ function publication_date_tokens($type, $tokens, array $data = array(), array $o
       }
     }
 
-    if ($published_tokens = token_find_with_prefix($tokens, 'published')) {
+    if ($published_tokens = \Drupal::token()->findWithPrefix($tokens, 'published')) {
       $replacements += token_generate('date', $published_tokens, array('date' => $node->published_at), $options);
     }
   }
