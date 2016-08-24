@@ -40,7 +40,7 @@ function publication_date_entity_base_field_info(\Drupal\Core\Entity\EntityTypeI
       ))
       ->setDisplayConfigurable('view', TRUE)
       ->setDisplayOptions('form', array(
-        'type' => 'datetime_timestamp',
+        'type' => 'publication_date_timestamp',
         'weight' => 10,
       ))
       ->setDisplayConfigurable('form', TRUE);
