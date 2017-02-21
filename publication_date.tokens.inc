@@ -5,6 +5,8 @@
  * Builds placeholder replacement tokens for node-related data.
  */
 
+use Drupal\Core\Render\BubbleableMetadata;
+
 /**
  * Implements hook_token_info().
  */
@@ -19,7 +21,7 @@ function publication_date_token_info_alter(&$data) {
 /**
  * Implements hook_tokens().
  */
-function publication_date_tokens($type, $tokens, array $data = array(), array $options = array()) {
+function publication_date_tokens($type, $tokens, array $data = array(), array $options = array(), BubbleableMetadata $bubbleable_metadata) {
   $url_options = array('absolute' => TRUE);
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
@@ -44,7 +46,7 @@ function publication_date_tokens($type, $tokens, array $data = array(), array $o
     }
 
     if ($published_tokens = \Drupal::token()->findWithPrefix($tokens, 'published')) {
-      $replacements += token_generate('date', $published_tokens, array('date' => $node->published_at), $options);
+      $replacements += \Drupal::token()->generate('date', $published_tokens, array('date' => $node->published_at), $options, $bubbleable_metadata);
     }
   }
 
