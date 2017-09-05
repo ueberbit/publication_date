@@ -5,6 +5,8 @@
  * Builds placeholder replacement tokens for node-related data.
  */
 
+use Drupal\Core\Datetime\Entity\DateFormat;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 
 /**
@@ -22,31 +24,33 @@ function publication_date_token_info_alter(&$data) {
  * Implements hook_tokens().
  */
 function publication_date_tokens($type, $tokens, array $data = array(), array $options = array(), BubbleableMetadata $bubbleable_metadata) {
-  $url_options = array('absolute' => TRUE);
-  if (isset($options['language'])) {
-    $url_options['language'] = $options['language'];
-    $language_code = $options['language']->language;
+  $tokenService = \Drupal::token();
+  $dateFormatter =  \Drupal::service('date.formatter');
+
+  if (isset($options['langcode'])) {
+    $langcode = $options['langcode'];
   }
   else {
-    $language_code = NULL;
+    $langcode = LanguageInterface::LANGCODE_DEFAULT;
   }
-  $sanitize = !empty($options['sanitize']);
-
-  $replacements = array();
+  $replacements = [];
 
   if ($type == 'node' && !empty($data['node'])) {
+    /** @var \Drupal\node\NodeInterface $node */
     $node = $data['node'];
 
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'published':
-          $replacements[$original] = format_date($node->published_at, 'medium', '', NULL, $language_code);
+          $date_format = DateFormat::load('medium');
+          $bubbleable_metadata->addCacheableDependency($date_format);
+          $replacements[$original] = $dateFormatter->format($node->published_at->value, 'medium', '', NULL, $langcode);
           break;
       }
     }
 
-    if ($published_tokens = \Drupal::token()->findWithPrefix($tokens, 'published')) {
-      $replacements += \Drupal::token()->generate('date', $published_tokens, array('date' => $node->published_at), $options, $bubbleable_metadata);
+    if ($published_tokens = $tokenService->findWithPrefix($tokens, 'published')) {
+      $replacements += $tokenService->generate('date', $published_tokens, ['date' => $node->published_at->value], $options, $bubbleable_metadata);
     }
   }
 
