@@ -64,6 +64,11 @@ class PublicationDateItem extends ChangedItem {
     if (!$this->isPublished() && !$this->value) {
       $this->value = PUBLICATION_DATE_DEFAULT;
     }
+    // If the default publication date is set and the entity is published then
+    // store the current date.
+    elseif ($this->isPublished() && $this->value == PUBLICATION_DATE_DEFAULT) {
+      $this->value = REQUEST_TIME;
+    }
 
     // Set the timestamp to request time if it is not set.
     if (!$this->value) {

@@ -1,0 +1,5 @@
+services:
+  publication_date.event_subscriber:
+    class: Drupal\publication_date\EventSubscriber\PublicationDateSubscriber
+    tags:
+      - { name: event_subscriber }
