@@ -28,9 +28,11 @@ class PublicationDateSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    return [
-      WorkbenchModerationEvents::STATE_TRANSITION => ['onWorkbenchModerationStateTransition'],
-    ];
+    $events = [];
+    if (class_exists('\Drupal\workbench_moderation\Event\WorkbenchModerationEvents')) {
+      $events[WorkbenchModerationEvents::STATE_TRANSITION] = ['onWorkbenchModerationStateTransition'];
+    }
+    return $events;
   }
 
 }
