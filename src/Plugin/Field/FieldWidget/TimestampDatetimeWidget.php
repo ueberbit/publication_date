@@ -33,7 +33,7 @@ class TimestampDatetimeWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $date_format = DateFormat::load('html_date')->getPattern();
     $time_format = DateFormat::load('html_time')->getPattern();
-    if (isset($items[$delta]->value) && $items[$delta]->value != PUBLICATION_DATE_DEFAULT) {
+    if (!$items->getParent()->getValue()->isNew() && isset($items[$delta]->value) && $items[$delta]->value != PUBLICATION_DATE_DEFAULT) {
       $default_value = DrupalDateTime::createFromTimestamp($items[$delta]->value);
     }
     else {
